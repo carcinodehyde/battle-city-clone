@@ -5,6 +5,7 @@ import flixel.FlxG;
 import flixel.ui.FlxButton;
 import flixel.ui.FlxVirtualPad;
 import flixel.FlxObject;
+import states.MainState;
 
 /**
  * ...
@@ -25,11 +26,12 @@ class Player extends FlxSprite
 	//movement speed (per frame)
 	private static inline var MOVEMENT_SPEED:Int = 50;
 	
-	//flag movement
-	public var moveToNextTile:Bool;
+	//move direction
+	private var moveDirection:MoveDirection;
 	
-	//current move direction
-	public var moveDirection:MoveDirection;
+	//delay shoot
+	private var timeShoot:Float = 0.5;
+	private var delayShoot:Float = 0;
 	
 	/*#if mobile
 	private var _virtualPad:FlxVirtualPad;
@@ -65,24 +67,44 @@ class Player extends FlxSprite
 		if (FlxG.keys.anyPressed(["DOWN", "S"])) 
 		{
 			y += MOVEMENT_SPEED * FlxG.elapsed;
-					animation.play("down");
-			
+			animation.play("down");
+			this.moveDirection = MoveDirection.DOWN;
 		}
 		else if (FlxG.keys.anyPressed(["UP", "W"]))
 		{
 			y -= MOVEMENT_SPEED * FlxG.elapsed;
-					animation.play("up");
+			animation.play("up");
+			this.moveDirection = MoveDirection.UP;
 		}
 		else if (FlxG.keys.anyPressed(["LEFT", "A"]))
 		{
 			x -= MOVEMENT_SPEED * FlxG.elapsed;
-					animation.play("left");
+			animation.play("left");
+			this.moveDirection = MoveDirection.LEFT;
 		}
 		else if (FlxG.keys.anyPressed(["RIGHT", "D"]))
 		{
 			x += MOVEMENT_SPEED * FlxG.elapsed;
-					animation.play("right");
+			animation.play("right");
+			this.moveDirection = MoveDirection.RIGHT;
 		}
+		
+		if (FlxG.keys.anyPressed(["Z", "SPACE"]))
+		{
+			delayShoot += FlxG.elapsed;
+			if (delayShoot > timeShoot) 
+			{
+				shoot();
+				delayShoot -= timeShoot;
+			}
+		}
+	}
+	
+	private function shoot():Void
+	{
+		var bullets = new Bullet(this.x, this.y, this.moveDirection);
+		FlxG.state.add(bullets);
+		
 	}
 
 }
